@@ -26,8 +26,8 @@ class gamePiece {
         this.x = x,
         this.y = y,
         this.color = color,
-        this.height = height,
         this.width = width,
+        this.height = height,
         this.alive = true,
         // Function has to be written "old school" in objects
         this.render = function() {
@@ -35,6 +35,51 @@ class gamePiece {
             ctx.fillRect(this.x, this.y, this.height, this.width)
         }
     }
+}
+
+class userHUD {
+    constructor(x, y, color, width) {
+        this.x = x,
+        this.y = y,
+        this.color = color,
+        this.width = width, //max 250
+        this.height = 25,
+        this.border = "black"
+        this.render = function () {
+            ctx.fillStyle = this.color
+            ctx.strokeStyle = this.border
+            ctx.lineWidth = 2
+            ctx.fillRect(this.x, this.y, this.width, this.height)
+            ctx.strokeRect(this.x, this.y, this.width, this.height)
+        }
+    }
+}
+
+// The width of the wokebar, or, how much wokeness has been collected.
+// Initial value of 50px. Will increase or decrease as the player
+// collects items.
+let wokeFill = 50
+
+// Set up the user HUD with the caffeine and project progress bars.
+// "baseBar" will render underneath them to give the appearance of
+// partially empty bars.
+let baseBar1 = new userHUD(25, 25, "rgb(161, 173, 189)", 250)
+let baseBar2 = new userHUD(525, 25, "rgb(161, 173, 189)", 250)
+let wokeBar = new userHUD(25, 25, "rgb(240, 119, 230)", wokeFill)
+let projectBar = new userHUD(525, 25, "rgb(240, 119, 230)", 200)
+
+// The collectibles will go in this object array with the
+// following key pairs: name, x-coord, y-coord, color, alive
+// boolean, fall rate
+let collectibles = []
+
+// Random number generator to be called for each of the conditions
+// with a random element (which collectible to generate next,
+// starting positions, etc.)
+const randomNum = (min, max) => {
+    min = Math.ceil(min)
+    max = Math.floor(max)
+    return Math.floor(Math.random() * max - min + 1) + min
 }
 
 // Initial creation of the game pieces (to be replaced with images)
@@ -53,20 +98,37 @@ const fallDown = () => {
     refill.y += 10
 }
 
+const collectGenerator = () => {
+    refill = new gamePiece(randomNum(40, 770), -40, "rgb(92, 47, 17)", 28, 37)
+}
+
+// Function to update the userHUD bars
+const barUpdate = () => {
+    wokeBar = new userHUD(25, 25, "rgb(240, 119, 230)", wokeFill)
+}
+
 const gameLoop = () => {
     // console.log("This is the start of the game loop");
     // Clear the canvas
     ctx.clearRect(0, 0, game.width, game.height)
     // Display the coordinates of the mug
-    moveDisplay.textContent = "Mug position: " + mug.x + ", " + mug.y +
-        " Refill pos: " + refill.x + ", " + refill.y
+    moveDisplay.textContent = "Mug position: " + mug.x + ", " + mug.y
     mug.render()
     // Drops the Refill collectible until it's collected or fallen off the gamefield
     if (refill.alive === true && refill.y < 600) {
         refill.render()
         fallDown()
-        detectCollision()        
+        detectCollision()
+        // No refill? We'll pause for a second then make a new one!
+    } else {
+        setTimeout(collectGenerator, 1000)
     }
+    // Render the HUD last so it will always be on top
+    // drawImage(wokeText, 300, 300)
+    baseBar1.render()
+    baseBar2.render()
+    wokeBar.render()
+    projectBar.render()
 }
 // Function to say what happens when the player uses a & d to move the
 // mug left and right.
@@ -96,6 +158,9 @@ const detectCollision = () => {
     if (mugLeft && mugRight && mugTop) {
             // game stuff
             refill.alive = false
+            wokeFill += 20
+            barUpdate()
+            console.log("wokeness level:", wokeFill)
             console.log("got it!")
         }
 }
@@ -116,7 +181,8 @@ document.addEventListener("DOMContentLoaded", function () {
 //  ✔ - collectibles removed when leaving the gamefield (not just falling forever)
 //  - random time interval before collectible falls (between xx and yy seconds)
 //  - random selection of next collectible to fall
-//  - collectibles falling at different rates(?)
+//  ✔ - random position of next collectible to fall
+//  ✔ - collectibles falling at different rates(?)  -> decided nah
 //  - collectible pick up adjusting player bars
 //  - interface messages pop-up
 //  - tying beginning of game to start button click
