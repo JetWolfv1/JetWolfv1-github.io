@@ -16,7 +16,6 @@ const clearCanvas = () => {
     ctx.clearRect(0, 0, canvas.width, canvas.height)
 }
 
-
 // Random number generator to be called for each of the conditions
 // with a random element (which collectible to generate next,
 // starting positions, etc.)
@@ -68,7 +67,7 @@ class WokeItem {
 }
 
 
-// class canvasPiece {
+// class gamePiece {
 //     constructor(x, y, color, height, width, wokeValue) {
 //         this.x = x,
 //         this.y = y,
@@ -162,12 +161,12 @@ const game = {
                 this.wokeItems.push(molecule)
             }
         }
-        console.log("contents of wokeItems", this.wokeItems)
     },
 }   // game Object end bracket
 
-startGame()
-    
+console.log("contents of wokeItems", game.wokeItems)
+
+
     // Initial creation of the player's mug canvaspiece
     let mug = new PlayerToken("basicMug", "hotpink", 75, 75)
     
@@ -330,7 +329,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // Will need to be moved to canvas start rather than on page load
     setInterval(gameLoop, 60)
     setInterval(timerTick, 200)
-    setInterval(makeWoke, 3000)
+    setInterval(game.makeWoke, 3000)
 })
 
 
