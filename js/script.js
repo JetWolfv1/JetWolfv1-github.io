@@ -130,6 +130,12 @@ let timer = 90
 
 // Function to create woke items and populate them into the array
 // for access to the rest of the game.
+
+// !! IDEA !! Put everything (or darn near?) under a giant blanket
+// object, which should allow for "this" to work with that that key
+// value and the name of the blanket object.
+// !! TRY THIS TOMORROW !!
+
 let wokeItems = []
 const makeWoke = () => {
     // Creation of the "woke" gamepieces (to be replaced with
