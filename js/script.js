@@ -2,6 +2,7 @@
 const canvas = document.getElementById("canvas")
 const moveDisplay = document.getElementById("user-moves")
 const startBtn = document.getElementById("start")
+// const hudMsg = document.getElementById("hudmessage")
 
 // Setting the context
 const ctx = canvas.getContext("2d")
@@ -37,7 +38,7 @@ class PlayerMug {
         this.color = tokenColor,
         this.width = tokenWidth,
         this.height = tokenHeight,
-        this.speed = 20,
+        this.speed = 30,
         // Mug only moves on x-axis, so not need to worry about up and down
         this.direction = {
             right: false,
@@ -76,7 +77,7 @@ class PlayerMug {
 			this.x += this.speed
 			// Keeps the mug from exceeding the canvas's right-hand side
 			if (this.x + this.width >= canvas.width) {
-				this.x = game.width - this.width
+				this.x = canvas.width - this.width
 			}
 		}
 	}
@@ -137,23 +138,38 @@ class TextHUD {
         this.y = y,
         this.color = color,
         this.font = font,
-        this.text = text,
+        this.text = text
         // this.border = border
-        this.render = function () {
-            ctx.fillStyle = this.color
-            // ctx.strokeStyle = this.border
-            // ctx.lineWidth = 4
-            ctx.font = this.font
-            ctx.fillText(this.text, this.x, this.y)
-        }
+    }
+    render = function () {
+        ctx.fillStyle = this.color
+        // ctx.strokeStyle = this.border
+        // ctx.lineWidth = 4
+        ctx.font = this.font
+        ctx.fillText(this.text, this.x, this.y)
     }
 }
+
+// Variable to indicate if the game is over or not.
+let gameOver = false
+// Variable for if the player won
+let youWin = false
+// Starting value for the game level timer.
+let timer = 90
+// Variable to iterate the gameLoop we're on, for internal checking
+let loopCount = 0
+// Variable to hold the adjusted values for the HUD bars
+let wokeUpdate = 0
+let projUpdate = 0
+// Variable to adjust the amount of wokeness the player starts with
+let startingWoke = 100
+let hudMsg = ""
 
 // Set up the user HUD with the caffeine and project progress bars.
 // "baseBar" will render underneath them to give the appearance of
 // partially empty bars.
 let wokeBase = new UserHUD(25, 38, "rgb(161, 173, 189)", 250)
-let wokeBar = new UserHUD(25, 38, "rgb(240, 119, 230)", 50)
+let wokeBar = new UserHUD(25, 38, "rgb(240, 119, 230)", startingWoke)
 let projectBase = new UserHUD(525, 38, "rgb(161, 173, 189)", 250)
 let projectBar = new UserHUD(525, 38, "rgb(240, 119, 230)", 0)
 
@@ -172,20 +188,9 @@ const drawHUD = () => {
     projectBar.render()
     wokeText.render()
     projectText.render()
-    timerText.render()
+    // timerText.render()
+    popupText.render()
 }
-
-// Variable to indicate if the game is over or not.
-let gameOver = false
-// Variable for if the player won
-let youWin = false
-// Starting value for the game level timer.
-let timer = 90
-// Variable to iterate the gameLoop we're on, for internal checking
-let loopCount = 0
-// Variable to hold the adjusted values for the HUD bars
-let wokeUpdate = 0
-let projUpdate = 0
 
 // The array to hold all the randomly created woke items. makeWoke() will
 // add them, and they'll be removed when they're captured or fall off the
@@ -254,6 +259,7 @@ const wokeStuff = {
     },
 
     // Renders the items from the array to the gameboard.
+    // **** put on timer?
     drawWoke() {
         for (let i = 0; i < wokeItems.length; i++) {
             wokeItems[i].render()
@@ -297,6 +303,9 @@ const startGame = () => {
     // stuff for setting up the game
 }
 
+// Popup message placed down here so it'll load on top of everything else.
+let popupText = new TextHUD(hudMsg, "white", 300, 150, "bold 25px Calibri")
+
 // Function to update the woke bar based on items collectded this loop.
 const wokeBarUpdate = () => {
     wokeUpdate--
@@ -305,6 +314,7 @@ const wokeBarUpdate = () => {
     // is over.
     if (adjustedWoke <= 0) {
         gameOver = true
+        console.log("You fell asleep!")
     }
     // Condition to constrain the bar update to the maximum possible.
     if (adjustedWoke <= wokeBase.width) {
@@ -333,6 +343,7 @@ const projBarUpdate = () => {
     } else {
         projBar = new UserHUD(525, 38, "rgb(240, 119, 230)", projectBase.width)
     }
+    // Reset the project increase back to zero for the next loop
     projUpdate = 0
 }
 
@@ -477,6 +488,11 @@ document.addEventListener('keyup', (e) => {
 // FUTURE
 // ======
 // - powerups/downs that change the mug (size, speed, shield, etc.)
-// - new item category that affects the project (inspiration, breakthrough
+// - new item category that affects the project
+//      - positive: inspiration, breakthrough, getting help 
+//      - negative: that song you really like, a youtube hole,
+//        random unnecessary cleaning
 // - more item variety
 // - levels from easy to hard
+// - have the background grow dark (and blurry?) based on your
+//   wokeness, getting worse the more tired you become
