@@ -111,7 +111,7 @@ class WokeItem {
     }
 }
 
-// The constructor for creating the canvas bars for the user interface.
+// The constructor for creating the game bars for the user interface.
 class UserHUD {
     constructor(x, y, color, width) {
         this.x = x,
@@ -153,9 +153,9 @@ class TextHUD {
 // "baseBar" will render underneath them to give the appearance of
 // partially empty bars.
 let wokeBase = new UserHUD(25, 38, "rgb(161, 173, 189)", 250)
-let projectBase = new UserHUD(525, 38, "rgb(161, 173, 189)", 250)
 let wokeBar = new UserHUD(25, 38, "rgb(240, 119, 230)", 50)
-let projectBar = new UserHUD(525, 38, "rgb(240, 119, 230)", 200)
+let projectBase = new UserHUD(525, 38, "rgb(161, 173, 189)", 250)
+let projectBar = new UserHUD(525, 38, "rgb(240, 119, 230)", 0)
 
 // Adding in text to the user HUD
 // Format: (text, color, x-coord, y-coord, "style size face")
@@ -163,6 +163,7 @@ let wokeText = new TextHUD("Wokeness", "blue", 30, 30, "bold 20pt Calibri")
 let projectText = new TextHUD("Project", "blue", 695, 30, "bold 20pt Calibri")
 let timerText = new TextHUD(90, "blue", 375, 60, "bold 40pt Calibri")
 let gameOverText = new TextHUD("Game Over", "red", 90, 325, "bold 100pt Calibri")
+let winnerText = new TextHUD("You win!", "blue", 150, 325, "bold 100pt Calibri")
 
 const drawHUD = () => {
     wokeBase.render()
@@ -174,14 +175,17 @@ const drawHUD = () => {
     timerText.render()
 }
 
-// Variable to indicate if the canvas is over or not.
+// Variable to indicate if the game is over or not.
 let gameOver = false
-// Starting value for the canvas level timer.
+// Variable for if the player won
+let youWin = false
+// Starting value for the game level timer.
 let timer = 90
 // Variable to iterate the gameLoop we're on, for internal checking
 let loopCount = 0
-// Variable to hold the adjusted values for the wokeBar
+// Variable to hold the adjusted values for the HUD bars
 let wokeUpdate = 0
+let projUpdate = 0
 
 // The array to hold all the randomly created woke items. makeWoke() will
 // add them, and they'll be removed when they're captured or fall off the
@@ -216,17 +220,17 @@ const wokeStuff = {
             if (refill.x > canvas.width - refill.width)
                 {refill.x = canvas.width - refill.width}
             wokeItems.push(refill)
-            console.log("made refill: ", refill)
+            // console.log("made refill: ", refill)
         } else if (randomWoke === 4 || randomWoke === 5) {
             if (energyDrink.x > canvas.width - energyDrink.width)
                 {energyDrink.x = canvas.width - energyDrink.width}
             wokeItems.push(energyDrink)
-            console.log("made energy: ", energyDrink)
+            // console.log("made energy: ", energyDrink)
         } else if (randomWoke === 6) {
             if (molecule.x > canvas.width - molecule.width)
                 {molecule.x = canvas.width - molecule.width}
             wokeItems.push(molecule)
-            console.log("made molecule: ", molecule)
+            // console.log("made molecule: ", molecule)
         }
 
         // Same as above, for sleepy items
@@ -235,17 +239,17 @@ const wokeStuff = {
             if (sheep.x > canvas.width - sheep.width)
                 {sheep.x = canvas.width - sheep.width}
             wokeItems.push(sheep)
-            console.log("made sheep: ", sheep)
+            // console.log("made sheep: ", sheep)
         } else if (randomSleep === 3 || randomSleep === 4) {
             if (lullaby.x > canvas.width - lullaby.width)
                 {lullaby.x = canvas.width - lullaby.width}
             wokeItems.push(lullaby)
-            console.log("made lullaby: ", lullaby)
+            // console.log("made lullaby: ", lullaby)
         } else if (randomSleep >= 5) {
             if (pillow.x > canvas.width - pillow.width)
                 {pillow.x = canvas.width - pillow.width}
             wokeItems.push(pillow)
-            console.log("made pillow: ", pillow)
+            // console.log("made pillow: ", pillow)
         }
     },
 
@@ -293,8 +297,9 @@ const startGame = () => {
     // stuff for setting up the game
 }
 
-// Function to update the UserHUD bars based on items collectded this loop.
-const barUpdate = () => {
+// Function to update the woke bar based on items collectded this loop.
+const wokeBarUpdate = () => {
+    wokeUpdate--
     let adjustedWoke = wokeBar.width + wokeUpdate
     // Check to see if the player has fallen asleep, and if so, the game
     // is over.
@@ -309,6 +314,26 @@ const barUpdate = () => {
     }
     // Reset the amount of woke collected after update
     wokeUpdate = 0
+}
+
+// Function to adjust the project bar and trigger when the player wins
+const projBarUpdate = () => {
+    projUpdate++
+    let adjustedProj = projectBar.width + projUpdate
+    // Check to see if the player has fallen asleep, and if so, tdhe game
+    // is over.
+    if (adjustedProj === projectBase.width) {
+        gameOver = true
+        youWin = true
+        console.log("Project complete, you win!")
+    }
+    // Condition to constrain the bar update to the maximum possible.
+    if (adjustedProj <= projectBase.width) {
+        projectBar = new UserHUD(525, 38, "rgb(240, 119, 230)", adjustedProj)
+    } else {
+        projBar = new UserHUD(525, 38, "rgb(240, 119, 230)", projectBase.width)
+    }
+    projUpdate = 0
 }
 
 // Function that will run every loop to check for which items are "dead"
@@ -344,14 +369,15 @@ const gameLoop = () => {
     if (gameOver === true) {
         stopGame()
     } else {
-
         // Runs the check for removal of the "dead" items
         clearDead()
         // Clear the canvas
         clearCanvas()
         // Display the coordinates of the mug
         drawHUD()
-        barUpdate()
+        // Update the player HUD bars
+        wokeBarUpdate()
+        projBarUpdate()
         // Updates the player with the mug's x,y position
         // moveDisplay.textContent = "Mug position: " + mug.x + ", " + mug.y
         // makes new woke items and puts them into their array
@@ -370,13 +396,19 @@ const gameLoop = () => {
 // Setting the timed items so we can stop them.
 const gameLoopInterval = setInterval(gameLoop, 60)
 const makeWokeInterval = setInterval(wokeStuff.makeWoke, 1000)
+// const projectBarInterval = setInterval(wokeUpdate--, 1000)
+// const wokeBarInterval = setInterval(projUpdate++, 1000)
 
 // Function to perform end of game checks and actions
 const stopGame = () => {
     clearInterval(gameLoopInterval)
     clearInterval(makeWokeInterval)
     clearCanvas()
-    gameOverText.render()
+    if (youWin === true) {
+        winnerText.render()
+    } else {
+        gameOverText.render()
+    }
     console.log("Game over!")
     // console.log("generated wokeitems left:", wokeItems)
 }
@@ -387,7 +419,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // stops the game after a set amount of time, for testing
     // setTimeout(stopGame, 10000)
     // listens for the start button to be clicked
-    startBtn.addEventListener("click", console.log("clicky!"))
+    startBtn.addEventListener("click", startGame)
 })
 
 // detects when a key is pressed
@@ -407,13 +439,14 @@ document.addEventListener('keyup', (e) => {
 })
 
 
-// Logic to work out / Things to add
 //
+// Logic to work out / Things to add
 // ========
 //  TO MVP
 // ========
 //  ✔ - player UI ("health" bars, time remaining, etc.)
-//  - project bar moving toward completion
+//  ✔ - project bar moving up toward completion
+//  ✔ - woke bar moving down toward sleep
 //  ✔ - woke array of objects for collectibles
 //  ✔ - woke items falling
 //  ✔ - woke items affecting woke bar
@@ -422,11 +455,14 @@ document.addEventListener('keyup', (e) => {
 //  ✔     - sleepy itmes falling
 //  ✔     - sleepy items affecting woke bar
 //  ✔     - sleepy items removed when leaving gamefield
-//  - (random?) time interval before collectible falls
 //  ✔ - random selection of next collectible to fall
 //  ✔ - random position of next collectible to fall
+//
+// ================================
+// TECHNICALLY PLAYABLE WITHOUT BUT
+// ================================
 //  - interface messages pop-up
-//  - tying beginning of canvas to start button click
+//  - tying beginning of game to start button click
 //
 // =======
 // STRETCH
