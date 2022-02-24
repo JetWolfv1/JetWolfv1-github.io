@@ -9,13 +9,13 @@ h1 {
 }
 
 #canvas {
-    height: 600px;
     width: 800px;
+    height: 600px;
     border: 2px solid black;
     background-color: rgb(120, 150, 189);
     margin-left: 50px;
 }
 
-#hiding {
+.hidden {
     display: none;
 }

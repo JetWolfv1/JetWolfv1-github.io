@@ -1,9 +1,5 @@
-// Initial variables to select elements for DOM manipulation.
-const canvas = document.getElementById("canvas")
-const moveDisplay = document.getElementById("user-moves")
-const startBtn = document.getElementById("start")
-// const hudMsg = document.getElementById("hudmessage")
 
+const canvas = document.getElementById("canvas")
 // Setting the context
 const ctx = canvas.getContext("2d")
 
@@ -11,6 +7,15 @@ const ctx = canvas.getContext("2d")
 // style we'll be using so our dimensions are correct
 canvas.setAttribute("width", getComputedStyle(canvas)["width"])
 canvas.setAttribute("height", getComputedStyle(canvas)["height"])
+
+// Initial variables to select elements for DOM manipulation.
+const moveDisplay = document.getElementById("user-moves")
+const startBtn = document.getElementById("start")
+// const hudMsg = document.getElementById("hudmessage")
+
+// Setting images to variables to make it easier to call them
+const imgMug = document.getElementById("mug1")
+
 
 // Function to clear the game board
 const clearCanvas = () => {
@@ -31,13 +36,14 @@ const randomNum = (min, max) => {
 // in future versions? Or power them up? Speed, width, etc.  Just
 // basic for now.)
 class PlayerMug {
-    constructor(tokenName, tokenColor, tokenWidth, tokenHeight) {
+    constructor(mugName, mugImage, mugWidth, mugHeight) {
         this.x = 350,
-        this.y = 500,
-        this.name = tokenName,
-        this.color = tokenColor,
-        this.width = tokenWidth,
-        this.height = tokenHeight,
+        this.y = 450,
+        this.name = mugName,
+        this.color = "hotpink",
+        this.width = mugWidth,
+        this.height = mugHeight,
+        this.image = mugImage,
         this.speed = 30,
         // Mug only moves on x-axis, so not need to worry about up and down
         this.direction = {
@@ -81,14 +87,17 @@ class PlayerMug {
 			}
 		}
 	}
-    render = function() {
-        ctx.fillStyle = this.color
-        ctx.fillRect(this.x, this.y, this.width, this.height)
+    // Function to draw mug, to be replaced by image theoretically.
+    // render = function() {
+    //     ctx.fillStyle = this.color
+    //     ctx.fillRect(this.x, this.y, this.width, this.height)
+    draw = function () {
+        ctx.drawImage(imgMug, this.x, this.y, this.width, this.height)
     }
 } // PlayerMug class close bracket
 
 // Initial creation of the player's mug gamepiece
-const mug = new PlayerMug("basicMug", "hotpink", 75, 75)
+const mug = new PlayerMug("basicMug", imgMug, 150, 150)
 
 // The object for creating (constructing and then rendering)
 // the caffeinated collectibles that the player will attempt
@@ -395,7 +404,7 @@ const gameLoop = () => {
         wokeStuff.drawWoke()
         // Create the player's mug
         // Placed after the collectibles so the mug will be the top layer
-        mug.render()
+        mug.draw()
         mug.moveMug()
         wokeStuff.detectHit()
         // console.log("can I get speed from in the gameloop?", wokeItems[0].rate)
