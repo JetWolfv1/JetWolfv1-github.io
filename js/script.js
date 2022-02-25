@@ -104,7 +104,7 @@ const mug = new PlayerMug("basicMug", imgMug, 150, 150)
 // to capture.
 class WokeItem {
     constructor(wokeName, wokeColor, wokeWidth, wokeHeight, wokeDropRate, wokeValue, x) {
-        // this.id = randomNum(1, 2000)
+        this.id = randomNum(1, 2000)
         this.x = x,
         this.y = 0,
         this.name = wokeName,
@@ -113,9 +113,10 @@ class WokeItem {
         this.height = wokeHeight,
         this.rate = wokeDropRate,
         this.value = wokeValue,
+        this.dropped = false,
         this.alive = true
     }
-    render = function() {
+    draw = function() {
         ctx.fillStyle = this.color
         ctx.fillRect(this.x, this.y, this.width, this.height)
     }
@@ -166,12 +167,23 @@ let youWin = false
 // Starting value for the game level timer.
 let timer = 90
 // Variable to iterate the gameLoop we're on, for internal checking
-let loopCount = 0
+let gameLoopCount = 0
 // Variable to hold the adjusted values for the HUD bars
 let wokeUpdate = 0
 let projUpdate = 0
 // Variable to adjust the amount of wokeness the player starts with
 let startingWoke = 100
+// Variable to initialize the check to see if an identical item gets
+// picked to drop next
+let lastDrop = 5000
+// Boolean to say if we want a new item to drop.
+let goodToDrop = false
+
+// Creating interval variables so we can control them, but without
+// value now so they won't fire until we tell them to.
+let gameLoopInterval = null
+let makeWokeInterval = null
+
 let hudMsg = ""
 
 // Set up the user HUD with the caffeine and project progress bars.
@@ -216,6 +228,7 @@ const wokeStuff = {
     // rate, amount of wokeness it'll add, and its randomly generated
     // position on the x-axis
     makeWoke() {
+        // console.log(`wokeItems has ${wokeItems.length} items at top of makeWoke`)
         let refill = new WokeItem("refill", "rgb(92, 47, 17)", 28, 37, 30, 10, randomNum(0, canvas.width))
         let energyDrink = new WokeItem("energyDrink", "blue", 25, 75, 40, 30, randomNum(0, canvas.width))
         let molecule = new WokeItem("molecule", "teal", 100, 75, 20, 100, randomNum(0, canvas.width))
@@ -233,18 +246,18 @@ const wokeStuff = {
         if (randomWoke <= 3) {
             if (refill.x > canvas.width - refill.width)
                 {refill.x = canvas.width - refill.width}
-            wokeItems.push(refill)
-            // console.log("made refill: ", refill)
+                wokeItems.push(refill)
+                // console.log("made refill", refill)
         } else if (randomWoke === 4 || randomWoke === 5) {
             if (energyDrink.x > canvas.width - energyDrink.width)
                 {energyDrink.x = canvas.width - energyDrink.width}
-            wokeItems.push(energyDrink)
-            // console.log("made energy: ", energyDrink)
+                wokeItems.push(energyDrink)
+                // console.log("made energy", energyDrink)
         } else if (randomWoke === 6) {
             if (molecule.x > canvas.width - molecule.width)
                 {molecule.x = canvas.width - molecule.width}
-            wokeItems.push(molecule)
-            // console.log("made molecule: ", molecule)
+                wokeItems.push(molecule)
+                // console.log("made molecule", molecule)
         }
 
         // Same as above, for sleepy items
@@ -252,29 +265,77 @@ const wokeStuff = {
         if (randomSleep <= 2) {
             if (sheep.x > canvas.width - sheep.width)
                 {sheep.x = canvas.width - sheep.width}
-            wokeItems.push(sheep)
-            // console.log("made sheep: ", sheep)
+                wokeItems.push(sheep)
+                // console.log("made sheep", sheep)
         } else if (randomSleep === 3 || randomSleep === 4) {
             if (lullaby.x > canvas.width - lullaby.width)
                 {lullaby.x = canvas.width - lullaby.width}
-            wokeItems.push(lullaby)
-            // console.log("made lullaby: ", lullaby)
+                wokeItems.push(lullaby)
+                // console.log("made lullaby", lullaby)
         } else if (randomSleep >= 5) {
             if (pillow.x > canvas.width - pillow.width)
                 {pillow.x = canvas.width - pillow.width}
-            wokeItems.push(pillow)
-            // console.log("made pillow: ", pillow)
+                wokeItems.push(pillow)
+                // console.log("made pillow", pillow)
         }
+        // console.log("what's in the item array:", wokeItems)
     },
 
     // Renders the items from the array to the gameboard.
     // **** put on timer?
+
+    // Renders the items from the array to the gameboard.
     drawWoke() {
+        if (goodToDrop === true) {
+        //     console.log("goodtodrop is false")
+        // } else {
+        //     console.log("goodtodrop is true")
+            // Randomzing the item dropped
+            let i = randomNum(1, (wokeItems.length - 1))
+            // Keeps the dropped items from repeating
+            wokeItems[i].dropped = true
+            // Reset the lock on dropping another item
+            goodToDrop = false
+        }
+
         for (let i = 0; i < wokeItems.length; i++) {
-            wokeItems[i].render()
-            wokeItems[i].y += wokeItems[i].rate
+            if (wokeItems[i].dropped === true) {
+                wokeItems[i].draw()
+                wokeItems[i].y += wokeItems[i].rate
+            }
         }
     },
+
+    //     for (let i = 0; i < wokeItems.length; i++) {
+    //         wokeItems[i].draw()
+    //         wokeItems[i].dropped = true
+    //         wokeItems[i].y += wokeItems[i].rate
+    //     }
+    // },
+
+    // drawWoke() {
+    //     // console.log("drawWoke fired")
+    //     // Randomzing the item dropped
+    //     let i = randomNum(1, (wokeItems.length - 1))
+    //     // console.log("random number", i)
+    //     if (wokeItems[i].id === lastDrop) {
+    //         // console.log("last drop(match):", lastDrop)
+    //         // console.log("item just dropped, waiting")
+    //     } else {
+    //         // console.log("last drop(no match):", lastDrop)
+    //         wokeItems[i].draw()
+    //         console.log(`dropped: ${wokeItems[i].name} with rate ${wokeItems[i].rate} and id# ${wokeItems[i].id} from index ${i}`)
+    //         wokeItems[i].y += wokeItems[i].rate
+    //         lastDrop = wokeItems[i].id
+    //     }
+    // },
+
+        // Drops wokeItems sequentially, changing to random.
+        // for (let i = 0; i < wokeItems.length; i++) {
+        //     wokeItems[i].draw()
+        //     wokeItems[i].y += wokeItems[i].rate
+        //     console.log(`dropped: ${wokeItems[i].name} from index ${i}`)
+        // }
 
     // Collision detection for each of the items on the gameboard.
     detectHit() {
@@ -306,11 +367,6 @@ const wokeStuff = {
                 }
             },
 } // wokeStuff object close bracket
-
-// function to do all the rendering, resetting, etc. for starting the game
-const startGame = () => {
-    // stuff for setting up the game
-}
 
 // Popup message placed down here so it'll load on top of everything else.
 let popupText = new TextHUD(hudMsg, "white", 300, 150, "bold 25px Calibri")
@@ -379,28 +435,28 @@ const checkTimers = () => {
 const gameLoop = () => {
     // Up the loop counter at the start of the gameloop and display which
     // one we're on (for internal use)
-    // loopCount++
-    // console.log("Starting loop #", loopCount)
+    // gameLoopCount++
+    // console.log("Starting loop #", gameLoopCount)
     // console.log("This is the start of the game loop");
     // console.log("woke update at loop start", wokeUpdate)
+    // console.log(`At the start of gameloop the are ${wokeItems.length} woke items.`)
 
-    // first check to see if the game is over
-    // ** Pass number to stopGame() to change display, etc?
+    // Before anything runs, check to see if the game is over.
     if (gameOver === true) {
         stopGame()
     } else {
+        // These are the things that will happen every tick.
         // Runs the check for removal of the "dead" items
         clearDead()
         // Clear the canvas
         clearCanvas()
-        // Display the coordinates of the mug
         drawHUD()
         // Update the player HUD bars
         wokeBarUpdate()
         projBarUpdate()
         // Updates the player with the mug's x,y position
         // moveDisplay.textContent = "Mug position: " + mug.x + ", " + mug.y
-        // makes new woke items and puts them into their array
+        // Draws the falling items on the gameboard
         wokeStuff.drawWoke()
         // Create the player's mug
         // Placed after the collectibles so the mug will be the top layer
@@ -413,9 +469,29 @@ const gameLoop = () => {
     }
 } // gameLoop end bracket
 
-// Setting the timed items so we can stop them.
-const gameLoopInterval = setInterval(gameLoop, 60)
-const makeWokeInterval = setInterval(wokeStuff.makeWoke, 1000)
+// Class for the setup stuff
+const startStuff = {
+    // function to do all the rendering, resetting, etc. for starting the game
+    startGame() {
+        // Front-loading items into the array
+        // Run makeWoke $count number of times
+        // d(`${wokeItems.length} wokeItems at startGame top`)
+        for (let count = 0; count < 10; count++) {
+            wokeStuff.makeWoke()
+            // console.log(wokeItems.length, "items made before game starts")
+        }
+        if (!gameLoopInterval) {
+            setTimeout(gameLoopInterval = setInterval(gameLoop, 60), 1000)
+            setTimeout(makeWokeInterval = setInterval(wokeStuff.makeWoke, 500), 10000)
+            setInterval(() => {goodToDrop = true}, 500)
+            // goodToDrop = true, 1000
+        }
+    },
+}
+
+// Setting the timed items so we can control them.
+// const makeWokeInterval = setInterval(wokeStuff.makeWoke, 500)
+// const drawWokeInterval = setInterval(wokeStuff.drawWoke, randomNum(100, 1000))
 // const projectBarInterval = setInterval(wokeUpdate--, 1000)
 // const wokeBarInterval = setInterval(projUpdate++, 1000)
 
@@ -430,16 +506,18 @@ const stopGame = () => {
         gameOverText.render()
     }
     console.log("Game over!")
-    // console.log("generated wokeitems left:", wokeItems)
+    console.log("wokeitems left at game end:", wokeItems.length)
 }
 
 // The event listeners that load with the page
-document.addEventListener("DOMContentLoaded", function () {    
+document.addEventListener("DOMContentLoaded", function () {
+
     // setInterval(gameLoop, 60)
     // stops the game after a set amount of time, for testing
     // setTimeout(stopGame, 10000)
     // listens for the start button to be clicked
-    startBtn.addEventListener("click", startGame)
+    startBtn.addEventListener("click", startStuff.startGame)
+    // startBtn.addEventListener("click", startStuff.startGame)
 })
 
 // detects when a key is pressed
