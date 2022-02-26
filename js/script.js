@@ -1,6 +1,6 @@
 
+// Initial setting of the canvas and context
 const canvas = document.getElementById("canvas")
-// Setting the context
 const ctx = canvas.getContext("2d")
 
 // Takes the canvas CSS elements and puts them into the pixel
@@ -11,10 +11,17 @@ canvas.setAttribute("height", getComputedStyle(canvas)["height"])
 // Initial variables to select elements for DOM manipulation.
 const moveDisplay = document.getElementById("user-moves")
 const startBtn = document.getElementById("start")
+const replayBtn = document.getElementById("replay")
 // const hudMsg = document.getElementById("hudmessage")
 
-// Setting images to variables to make it easier to call them
+// Setting images to variables to easily call them
 const imgMug = document.getElementById("mug1")
+const imgRefill = document.getElementById("refill")
+const imgEnergy = document.getElementById("energy")
+const imgMolecule = document.getElementById("molecule")
+const imgSheep = document.getElementById("sheep")
+const imgLullaby = document.getElementById("lullaby")
+const imgPillow = document.getElementById("pillow")
 
 
 // Function to clear the game board
@@ -87,13 +94,14 @@ class PlayerMug {
 			}
 		}
 	}
-    // Function to draw mug, to be replaced by image theoretically.
+    // Function to draw mug, to be replaced by an image (theoretically!)
     // render = function() {
     //     ctx.fillStyle = this.color
     //     ctx.fillRect(this.x, this.y, this.width, this.height)
-    draw = function () {
-        ctx.drawImage(imgMug, this.x, this.y, this.width, this.height)
-    }
+    draw() {
+            ctx.drawImage(this.image, this.x, this.y, this.width, this.height)
+        }
+    
 } // PlayerMug class close bracket
 
 // Initial creation of the player's mug gamepiece
@@ -103,11 +111,12 @@ const mug = new PlayerMug("basicMug", imgMug, 150, 150)
 // the caffeinated collectibles that the player will attempt
 // to capture.
 class WokeItem {
-    constructor(wokeName, wokeColor, wokeWidth, wokeHeight, wokeDropRate, wokeValue, x) {
+    constructor(wokeName, wokeImg, wokeColor, wokeWidth, wokeHeight, wokeDropRate, wokeValue, x) {
         this.id = randomNum(1, 2000)
         this.x = x,
         this.y = 0,
         this.name = wokeName,
+        this.image = wokeImg,
         this.color = wokeColor,
         this.width = wokeWidth,
         this.height = wokeHeight,
@@ -116,9 +125,10 @@ class WokeItem {
         this.dropped = false,
         this.alive = true
     }
-    draw = function() {
-        ctx.fillStyle = this.color
-        ctx.fillRect(this.x, this.y, this.width, this.height)
+    draw() {
+        ctx.drawImage(this.image, this.x, this.y, this.width, this.height)
+        // ctx.fillStyle = this.color
+        // ctx.fillRect(this.x, this.y, this.width, this.height)
     }
 }
 
@@ -132,7 +142,7 @@ class UserHUD {
         this.height = 25,
         this.border = "black"
     }
-    render = function () {
+    render() {
         ctx.fillStyle = this.color
         ctx.strokeStyle = this.border
         ctx.lineWidth = 2
@@ -151,7 +161,7 @@ class TextHUD {
         this.text = text
         // this.border = border
     }
-    render = function () {
+    render() {
         ctx.fillStyle = this.color
         // ctx.strokeStyle = this.border
         // ctx.lineWidth = 4
@@ -229,12 +239,12 @@ const wokeStuff = {
     // position on the x-axis
     makeWoke() {
         // console.log(`wokeItems has ${wokeItems.length} items at top of makeWoke`)
-        let refill = new WokeItem("refill", "rgb(92, 47, 17)", 28, 37, 30, 10, randomNum(0, canvas.width))
-        let energyDrink = new WokeItem("energyDrink", "blue", 25, 75, 40, 30, randomNum(0, canvas.width))
-        let molecule = new WokeItem("molecule", "teal", 100, 75, 20, 100, randomNum(0, canvas.width))
-        let sheep = new WokeItem("sheep", "white", 100, 100, 20, -10, randomNum(0, canvas.width))
-        let lullaby = new WokeItem("lullaby", "goldenrod", 25, 25, 30, -20, randomNum(0, canvas.width))
-        let pillow = new WokeItem("pillow", "rgb(145, 62, 161)", 75, 50, 40, -40, randomNum(0, canvas.width))
+        let refill = new WokeItem("refill", imgRefill, "rgb(92, 47, 17)", 28, 37, 30, 10, randomNum(0, canvas.width))
+        let energyDrink = new WokeItem("energyDrink", imgEnergy, "blue", 25, 75, 40, 30, randomNum(0, canvas.width))
+        let molecule = new WokeItem("molecule", imgMolecule, "teal", 100, 75, 20, 100, randomNum(0, canvas.width))
+        let sheep = new WokeItem("sheep", imgSheep, "white", 100, 100, 20, -10, randomNum(0, canvas.width))
+        let lullaby = new WokeItem("lullaby", imgLullaby, "goldenrod", 25, 25, 30, -20, randomNum(0, canvas.width))
+        let pillow = new WokeItem("pillow", imgPillow, "rgb(145, 62, 161)", 75, 50, 40, -40, randomNum(0, canvas.width))
         
         // Random number generator to determine which woke item will be
         // made next and pushed into the wokeItems array. Refills are more
@@ -282,9 +292,6 @@ const wokeStuff = {
     },
 
     // Renders the items from the array to the gameboard.
-    // **** put on timer?
-
-    // Renders the items from the array to the gameboard.
     drawWoke() {
         if (goodToDrop === true) {
         //     console.log("goodtodrop is false")
@@ -305,37 +312,6 @@ const wokeStuff = {
             }
         }
     },
-
-    //     for (let i = 0; i < wokeItems.length; i++) {
-    //         wokeItems[i].draw()
-    //         wokeItems[i].dropped = true
-    //         wokeItems[i].y += wokeItems[i].rate
-    //     }
-    // },
-
-    // drawWoke() {
-    //     // console.log("drawWoke fired")
-    //     // Randomzing the item dropped
-    //     let i = randomNum(1, (wokeItems.length - 1))
-    //     // console.log("random number", i)
-    //     if (wokeItems[i].id === lastDrop) {
-    //         // console.log("last drop(match):", lastDrop)
-    //         // console.log("item just dropped, waiting")
-    //     } else {
-    //         // console.log("last drop(no match):", lastDrop)
-    //         wokeItems[i].draw()
-    //         console.log(`dropped: ${wokeItems[i].name} with rate ${wokeItems[i].rate} and id# ${wokeItems[i].id} from index ${i}`)
-    //         wokeItems[i].y += wokeItems[i].rate
-    //         lastDrop = wokeItems[i].id
-    //     }
-    // },
-
-        // Drops wokeItems sequentially, changing to random.
-        // for (let i = 0; i < wokeItems.length; i++) {
-        //     wokeItems[i].draw()
-        //     wokeItems[i].y += wokeItems[i].rate
-        //     console.log(`dropped: ${wokeItems[i].name} from index ${i}`)
-        // }
 
     // Collision detection for each of the items on the gameboard.
     detectHit() {
@@ -426,9 +402,6 @@ const clearDead = () => {
 // ***** Put in a check on the gameloop? One that checks timers/counters
 // and fires if they're ready, otherwise stuff goes too fast.
 
-const checkTimers = () => {
-    // stuff'll go here for keeping track of the game's timing
-}
 
 // The main gameloop, runs every gameLoopInterval and drives primary
 // actions of the game
@@ -446,6 +419,7 @@ const gameLoop = () => {
         stopGame()
     } else {
         // These are the things that will happen every tick.
+        //
         // Runs the check for removal of the "dead" items
         clearDead()
         // Clear the canvas
@@ -454,18 +428,13 @@ const gameLoop = () => {
         // Update the player HUD bars
         wokeBarUpdate()
         projBarUpdate()
-        // Updates the player with the mug's x,y position
-        // moveDisplay.textContent = "Mug position: " + mug.x + ", " + mug.y
         // Draws the falling items on the gameboard
         wokeStuff.drawWoke()
-        // Create the player's mug
-        // Placed after the collectibles so the mug will be the top layer
+        // Create the player's mug. Placed after the collectibles so the
+        // mug will be the top layer
         mug.draw()
         mug.moveMug()
         wokeStuff.detectHit()
-        // console.log("can I get speed from in the gameloop?", wokeItems[0].rate)
-        // will need a timer or some sort of checker to control how often this fires
-        // checkTimers()
     }
 } // gameLoop end bracket
 
@@ -484,22 +453,21 @@ const startStuff = {
             setTimeout(gameLoopInterval = setInterval(gameLoop, 60), 1000)
             setTimeout(makeWokeInterval = setInterval(wokeStuff.makeWoke, 500), 10000)
             setInterval(() => {goodToDrop = true}, 500)
-            // goodToDrop = true, 1000
         }
     },
 }
-
-// Setting the timed items so we can control them.
-// const makeWokeInterval = setInterval(wokeStuff.makeWoke, 500)
-// const drawWokeInterval = setInterval(wokeStuff.drawWoke, randomNum(100, 1000))
-// const projectBarInterval = setInterval(wokeUpdate--, 1000)
-// const wokeBarInterval = setInterval(projUpdate++, 1000)
 
 // Function to perform end of game checks and actions
 const stopGame = () => {
     clearInterval(gameLoopInterval)
     clearInterval(makeWokeInterval)
     clearCanvas()
+    startBtn.className = "hidden"
+    replayBtn.className = "block"
+
+    // startBtn
+    // replayBtn
+
     if (youWin === true) {
         winnerText.render()
     } else {
@@ -517,24 +485,25 @@ document.addEventListener("DOMContentLoaded", function () {
     // setTimeout(stopGame, 10000)
     // listens for the start button to be clicked
     startBtn.addEventListener("click", startStuff.startGame)
-    // startBtn.addEventListener("click", startStuff.startGame)
 })
 
 // detects when a key is pressed
-document.addEventListener('keydown', (e) => {
+document.addEventListener("keydown", (e) => {
     // when the key is pressed, change the direction
     // according to the setDirection HeroCrawler method
     mug.setDirection(e.key)
 })
 
 // detects when a key is released
-document.addEventListener('keyup', (e) => {
+document.addEventListener("keyup", (e) => {
     // now if any of the keys that are released correspond to a movement key
     // change the corresponding direction to false
-    if (['a', 'd'].includes(e.key)) {
+    if (["a", "d"].includes(e.key)) {
         mug.unsetDirection(e.key)
     }
 })
+
+// replayBtn.addEventListener("click", location.reload())
 
 
 //
