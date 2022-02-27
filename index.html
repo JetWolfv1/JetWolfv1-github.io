@@ -9,21 +9,40 @@
 </head>
 <body>
     <div id="main">
-        <h1>Stay Woke</h1>
+        <!-- <h1>Stay Woke</h1> -->
 
-        <div id="gameboard">
-            <h2 id="user-moves"></h2>
-            <canvas id="canvas"></canvas>
-            <img id="mug1" class="hidden" src="images/mug1.png" width="75"
-             height="75">
-             <img id="refill" class="hidden" src="images/refill.png" width="75" height="75">
-             <img id="energy" class="hidden" src="images/nrg.png" width="75" height="75">
-             <img id="molecule" class="hidden" src="images/molecule.png" width="75" height="75">
-             <img id="sheep" class="hidden" src="images/sheep.png" width="75" height="75">
-             <img id="lullaby" class="hidden" src="images/lullaby.png" width="75" height="75">
-             <img id="pillow" class="hidden" src="images/pillow.png" width="75" height="75">
-            <p><button id="start">Start Game</button></p>
-            <p><button class="hidden" id="replay">Play again?</button></p>
+        <div id="start-screen" class="hidden">
+            <img id="start-button" class="" src="images/buttonstart.png">
+            <img id="howto-button" class="" src="images/buttonhowto.png">
+        </div>
+
+        <div id="how-to-play1" class="hidden">
+            <img id="howto-next" class="hidden">
+        </div>
+        
+        <div id="how-to-play2" class="hidden">
+            <img id="howto-prev" class="hidden">
+        </div>
+
+        <div id="win-screen" class="hidden">
+            <img id="replay-button-w" class="hidden" src="images/buttonreplay.png">
+        </div>
+
+        <div id="loss-screen" class="hidden">
+            <img id="replay-button-l" class="hidden" src="images/buttonreplay.png">
+        </div>
+
+        <div id="game-board" class="hidden">
+            <!-- <h2 id="user-moves"></h2> -->
+            <canvas id="canvas" class="hidden">
+                <img id="mug1" class="hidden" src="images/mug1.png" width="75" height="75">
+                <img id="refill" class="hidden" src="images/refill.png" width="75" height="75">
+                <img id="energy" class="hidden" src="images/nrg.png" width="75" height="75">
+                <img id="molecule" class="hidden" src="images/molecule.png" width="75" height="75">
+                <img id="sheep" class="hidden" src="images/sheep.png" width="75" height="75">
+                <img id="lullaby" class="hidden" src="images/lullaby.png" width="75" height="75">
+                <img id="pillow" class="hidden" src="images/pillow.png" width="75" height="75">
+            </canvas>
         </div>
     </div>
 

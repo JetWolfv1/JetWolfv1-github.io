@@ -9,10 +9,18 @@ canvas.setAttribute("width", getComputedStyle(canvas)["width"])
 canvas.setAttribute("height", getComputedStyle(canvas)["height"])
 
 // Initial variables to select elements for DOM manipulation.
+const gameBoard = document.getElementById("game-board")
 const moveDisplay = document.getElementById("user-moves")
-const startBtn = document.getElementById("start")
-const replayBtn = document.getElementById("replay")
+const startBtn = document.getElementById("start-button")
+const howToBtn = document.getElementById("howto-button")
+const replayBtnW = document.getElementById("replay-button-w")
+const replayBtnL = document.getElementById("replay-button-l")
 // const hudMsg = document.getElementById("hudmessage")
+const startScreen = document.getElementById("start-screen")
+const howTo1Screen = document.getElementById("how-to-play1")
+const howTo2Screen = document.getElementById("how-to-play2")
+const winScreen = document.getElementById("win-screen")
+const lossScreen = document.getElementById("loss-screen")
 
 // Setting images to variables to easily call them
 const imgMug = document.getElementById("mug1")
@@ -47,7 +55,6 @@ class PlayerMug {
         this.x = 350,
         this.y = 450,
         this.name = mugName,
-        this.color = "hotpink",
         this.width = mugWidth,
         this.height = mugHeight,
         this.image = mugImage,
@@ -111,13 +118,12 @@ const mug = new PlayerMug("basicMug", imgMug, 150, 150)
 // the caffeinated collectibles that the player will attempt
 // to capture.
 class WokeItem {
-    constructor(wokeName, wokeImg, wokeColor, wokeWidth, wokeHeight, wokeDropRate, wokeValue, x) {
+    constructor(wokeName, wokeImg, wokeWidth, wokeHeight, wokeDropRate, wokeValue, x) {
         this.id = randomNum(1, 2000)
         this.x = x,
         this.y = 0,
         this.name = wokeName,
         this.image = wokeImg,
-        this.color = wokeColor,
         this.width = wokeWidth,
         this.height = wokeHeight,
         this.rate = wokeDropRate,
@@ -175,9 +181,9 @@ let gameOver = false
 // Variable for if the player won
 let youWin = false
 // Starting value for the game level timer.
-let timer = 90
+// let timer = 90
 // Variable to iterate the gameLoop we're on, for internal checking
-let gameLoopCount = 0
+// let gameLoopCount = 0
 // Variable to hold the adjusted values for the HUD bars
 let wokeUpdate = 0
 let projUpdate = 0
@@ -234,17 +240,17 @@ const wokeItems = []
 
 const wokeStuff = {
     // Generates the caffeinated and sleepy items to be dropped for the
-    // player to collect. Parameters are: name, color, width, height, drop
+    // player to collect. Parameters are: name, image, width, height, drop
     // rate, amount of wokeness it'll add, and its randomly generated
     // position on the x-axis
     makeWoke() {
         // console.log(`wokeItems has ${wokeItems.length} items at top of makeWoke`)
-        let refill = new WokeItem("refill", imgRefill, "rgb(92, 47, 17)", 28, 37, 30, 10, randomNum(0, canvas.width))
-        let energyDrink = new WokeItem("energyDrink", imgEnergy, "blue", 25, 75, 40, 30, randomNum(0, canvas.width))
-        let molecule = new WokeItem("molecule", imgMolecule, "teal", 100, 75, 20, 100, randomNum(0, canvas.width))
-        let sheep = new WokeItem("sheep", imgSheep, "white", 100, 100, 20, -10, randomNum(0, canvas.width))
-        let lullaby = new WokeItem("lullaby", imgLullaby, "goldenrod", 25, 25, 30, -20, randomNum(0, canvas.width))
-        let pillow = new WokeItem("pillow", imgPillow, "rgb(145, 62, 161)", 75, 50, 40, -40, randomNum(0, canvas.width))
+        let refill = new WokeItem("refill", imgRefill, 75, 125, 30, 10, randomNum(0, canvas.width))
+        let energyDrink = new WokeItem("energyDrink", imgEnergy, 50, 100, 40, 30, randomNum(0, canvas.width))
+        let molecule = new WokeItem("molecule", imgMolecule, 125, 100, 20, 100, randomNum(0, canvas.width))
+        let sheep = new WokeItem("sheep", imgSheep, 125, 125, 20, -10, randomNum(0, canvas.width))
+        let lullaby = new WokeItem("lullaby", imgLullaby, 50, 75, 30, -20, randomNum(0, canvas.width))
+        let pillow = new WokeItem("pillow", imgPillow, 100, 75, 40, -40, randomNum(0, canvas.width))
         
         // Random number generator to determine which woke item will be
         // made next and pushed into the wokeItems array. Refills are more
@@ -438,13 +444,48 @@ const gameLoop = () => {
     }
 } // gameLoop end bracket
 
+
+// Function to reset the inner variables and arays then trigger the start
+// of the game as per usual.
+const restartGame = () => {
+    gameOver = false
+    youWin = false
+    wokeItems.length = 0
+    wokeUpdate = 0
+    projUpdate = 0
+    startingWoke = 100
+    goodToDrop = false
+    gameLoopInterval = null
+    makeWokeInterval = null
+    winScreen.classList.add("hidden")
+    winScreen.style.height = "0px"
+    lossScreen.classList.add("hidden")
+    lossScreen.style.height = "0px"
+    replayBtnW.classList.add("hidden")
+    replayBtnL.classList.add("hidden")
+    startStuff.startGame()
+    wokeBase = new UserHUD(25, 38, "rgb(161, 173, 189)", 250)
+    wokeBar = new UserHUD(25, 38, "rgb(240, 119, 230)", startingWoke)
+    projectBase = new UserHUD(525, 38, "rgb(161, 173, 189)", 250)
+    projectBar = new UserHUD(525, 38, "rgb(240, 119, 230)", 0)
+    // drawHUD()
+}
+
 // Class for the setup stuff
 const startStuff = {
     // function to do all the rendering, resetting, etc. for starting the game
     startGame() {
-        // Front-loading items into the array
+        // Remove the start screen and buttons and prep the gameboard
+        startBtn.classList.add("hidden")
+        howToBtn.classList.add("hidden")
+        startScreen.classList.add("hidden")
+        startScreen.style.height = "0px"
+        canvas.classList.remove("hidden")
+        canvas.style.height = "600px"
+        gameBoard.classList.remove("hidden")
+
+        // Front-loading items into the array for smooth drops and variety
         // Run makeWoke $count number of times
-        // d(`${wokeItems.length} wokeItems at startGame top`)
         for (let count = 0; count < 10; count++) {
             wokeStuff.makeWoke()
             // console.log(wokeItems.length, "items made before game starts")
@@ -462,19 +503,28 @@ const stopGame = () => {
     clearInterval(gameLoopInterval)
     clearInterval(makeWokeInterval)
     clearCanvas()
-    startBtn.className = "hidden"
-    replayBtn.className = "block"
-
-    // startBtn
-    // replayBtn
 
     if (youWin === true) {
-        winnerText.render()
+        canvas.classList.add("hidden")
+        canvas.style.height = "0px"
+        gameBoard.classList.add("hidden")
+		winScreen.classList.remove("hidden")
+        winScreen.style.height = "600px"
+        replayBtnW.classList.remove("hidden")
+        replayBtnW.addEventListener("click", restartGame)
+        // winnerText.render()
     } else {
-        gameOverText.render()
+        canvas.classList.add("hidden")
+        canvas.style.height = "0px"
+        gameBoard.classList.add("hidden")
+		lossScreen.classList.remove("hidden")
+        lossScreen.style.height = "600px"
+        replayBtnL.classList.remove("hidden")
+        replayBtnL.addEventListener("click", restartGame)
+        // gameOverText.render()
     }
     console.log("Game over!")
-    console.log("wokeitems left at game end:", wokeItems.length)
+    // console.log("wokeitems left at game end:", wokeItems.length)
 }
 
 // The event listeners that load with the page
@@ -503,7 +553,6 @@ document.addEventListener("keyup", (e) => {
     }
 })
 
-// replayBtn.addEventListener("click", location.reload())
 
 
 //

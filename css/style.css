@@ -5,7 +5,14 @@ body {
 
 h1 {
     text-shadow: 2px 2px 2px black;
-    /* -webkit-text-stroke: 1px black; */
+}
+
+#main {
+    display: flex;
+	flex-direction: column;
+	justify-content: flex-end;
+	align-items: center;
+    margin-top: 100px;
 }
 
 #canvas {
@@ -14,8 +21,76 @@ h1 {
     border: 2px solid black;
     background-color: rgb(120, 150, 189);
     margin-left: 50px;
+    background-image: url("../images/screengameplay.png");
+}
+
+#start-screen {
+    background-image: url("../images/screenstart.png");
+    display: flex;
+	flex-direction: row;
+	justify-content: space-around;
+    align-items: flex-end;
+    width: 800px;
+    height: 600px;
+}
+
+#start-button {
+    width: 284px;
+    height: 144px;
+    margin-bottom: 50px;
+}
+#howto-button {
+    width: 284px;
+    height: 144px;
+    margin-bottom: 50px;
+}
+#replay-button-w {
+    width: 386px;
+    height: 103px;
+    margin-bottom: 25px;
+}
+#replay-button-l {
+    width: 386px;
+    height: 103px;
+    margin-bottom: 25px;
+}
+
+#how-to-play1 {
+    background-image: url("../images/screengameplay.png");
+    display: flex;
+	flex-direction: row;
+	justify-content: space-around;
+}
+
+#how-to-play2 {
+    background-image: url("../images/screengameplay.png");
+    display: flex;
+	flex-direction: row;
+	justify-content: space-around;
+}
+
+#win-screen {
+    background-image: url("../images/screenwin.png");
+    display: flex;
+	flex-direction: row;
+	justify-content: space-around;
+    align-items: flex-end;
+    width: 800px;
+    height: 0px;
+}
+
+#loss-screen {
+    background-image: url("../images/screenloss.png");
+    display: flex;
+	flex-direction: row;
+	justify-content: space-around;
+    align-items: flex-end;
+    width: 800px;
+    height: 0px;
 }
 
 .hidden {
     display: none;
+    width: 0px;
+    height: 0px;
 }
