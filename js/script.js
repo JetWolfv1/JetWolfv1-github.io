@@ -23,6 +23,8 @@ const winScreen = document.getElementById("win-screen")
 const lossScreen = document.getElementById("loss-screen")
 
 // Setting images to variables to easily call them
+const imgWokeBar = document.getElementById("woke-bar")
+const imgProjBar = document.getElementById("proj-bar")
 const imgMug = document.getElementById("mug1")
 const imgRefill = document.getElementById("refill")
 const imgEnergy = document.getElementById("energy")
@@ -59,7 +61,7 @@ class PlayerMug {
         this.height = mugHeight,
         this.image = mugImage,
         this.speed = 30,
-        // Mug only moves on x-axis, so not need to worry about up and down
+        // Mug only moves on x-axis, so no need to worry about up and down
         this.direction = {
             right: false,
             left: false,
@@ -159,20 +161,25 @@ class UserHUD {
 
 // Constructor for adding text to the player HUD
 class TextHUD {
-    constructor(text, color, x, y, font) {
+    // constructor(text, color, x, y, font) {
+    constructor(textName, textImg, textWidth, textHeight, x, y) {
         this.x = x,
         this.y = y,
-        this.color = color,
-        this.font = font,
-        this.text = text
+        this.name = textName,
+        this.image = textImg,
+        this.width = textWidth,
+        this.height = textHeight
+        // this.font = font,
+        // this.text = text
         // this.border = border
     }
-    render() {
-        ctx.fillStyle = this.color
+    draw() {
+        ctx.drawImage(this.image, this.x, this.y, this.width, this.height)
+        // ctx.fillStyle = this.color
+        // ctx.font = this.font
+        // ctx.fillText(this.text, this.x, this.y)
         // ctx.strokeStyle = this.border
         // ctx.lineWidth = 4
-        ctx.font = this.font
-        ctx.fillText(this.text, this.x, this.y)
     }
 }
 
@@ -205,28 +212,30 @@ let hudMsg = ""
 // Set up the user HUD with the caffeine and project progress bars.
 // "baseBar" will render underneath them to give the appearance of
 // partially empty bars.
-let wokeBase = new UserHUD(25, 38, "rgb(161, 173, 189)", 250)
-let wokeBar = new UserHUD(25, 38, "rgb(240, 119, 230)", startingWoke)
-let projectBase = new UserHUD(525, 38, "rgb(161, 173, 189)", 250)
-let projectBar = new UserHUD(525, 38, "rgb(240, 119, 230)", 0)
+let wokeBase = new UserHUD(25, 70, "rgb(161, 173, 189)", 250)
+let wokeBar = new UserHUD(25, 70, "rgb(240, 119, 230)", startingWoke)
+let projectBase = new UserHUD(525, 70, "rgb(161, 173, 189)", 250)
+let projectBar = new UserHUD(525, 70, "rgb(240, 119, 230)", 0)
 
+let wokeText = new TextHUD("Wokeness", imgWokeBar, 150, 50, 25, 15)
+let projectText = new TextHUD("Project", imgProjBar, 100, 50, 675, 15)
+// let wokeText = new TextHUD("Wokeness", "blue", 30, 30, "bold 20pt Calibri")
+// let projectText = new TextHUD("Project", "blue", 695, 30, "bold 20pt Calibri")
 // Adding in text to the user HUD
 // Format: (text, color, x-coord, y-coord, "style size face")
-let wokeText = new TextHUD("Wokeness", "blue", 30, 30, "bold 20pt Calibri")
-let projectText = new TextHUD("Project", "blue", 695, 30, "bold 20pt Calibri")
-let timerText = new TextHUD(90, "blue", 375, 60, "bold 40pt Calibri")
-let gameOverText = new TextHUD("Game Over", "red", 90, 325, "bold 100pt Calibri")
-let winnerText = new TextHUD("You win!", "blue", 150, 325, "bold 100pt Calibri")
+// let timerText = new TextHUD(90, "blue", 375, 60, "bold 40pt Calibri")
+// let gameOverText = new TextHUD("Game Over", "red", 90, 325, "bold 100pt Calibri")
+// let winnerText = new TextHUD("You win!", "blue", 150, 325, "bold 100pt Calibri")
 
 const drawHUD = () => {
     wokeBase.render()
     projectBase.render()
     wokeBar.render()
     projectBar.render()
-    wokeText.render()
-    projectText.render()
+    wokeText.draw()
+    projectText.draw()
     // timerText.render()
-    popupText.render()
+    // popupText.render()
 }
 
 // The array to hold all the randomly created woke items. makeWoke() will
@@ -365,9 +374,9 @@ const wokeBarUpdate = () => {
     }
     // Condition to constrain the bar update to the maximum possible.
     if (adjustedWoke <= wokeBase.width) {
-        wokeBar = new UserHUD(25, 38, "rgb(240, 119, 230)", adjustedWoke)
+        wokeBar = new UserHUD(25, 70, "rgb(240, 119, 230)", adjustedWoke)
     } else {
-        wokeBar = new UserHUD(25, 38, "rgb(240, 119, 230)", wokeBase.width)
+        wokeBar = new UserHUD(25, 70, "rgb(240, 119, 230)", wokeBase.width)
     }
     // Reset the amount of woke collected after update
     wokeUpdate = 0
@@ -386,9 +395,9 @@ const projBarUpdate = () => {
     }
     // Condition to constrain the bar update to the maximum possible.
     if (adjustedProj <= projectBase.width) {
-        projectBar = new UserHUD(525, 38, "rgb(240, 119, 230)", adjustedProj)
+        projectBar = new UserHUD(525, 70, "rgb(240, 119, 230)", adjustedProj)
     } else {
-        projBar = new UserHUD(525, 38, "rgb(240, 119, 230)", projectBase.width)
+        projBar = new UserHUD(525, 75, "rgb(240, 119, 230)", projectBase.width)
     }
     // Reset the project increase back to zero for the next loop
     projUpdate = 0
@@ -464,10 +473,10 @@ const restartGame = () => {
     replayBtnW.classList.add("hidden")
     replayBtnL.classList.add("hidden")
     startStuff.startGame()
-    wokeBase = new UserHUD(25, 38, "rgb(161, 173, 189)", 250)
-    wokeBar = new UserHUD(25, 38, "rgb(240, 119, 230)", startingWoke)
-    projectBase = new UserHUD(525, 38, "rgb(161, 173, 189)", 250)
-    projectBar = new UserHUD(525, 38, "rgb(240, 119, 230)", 0)
+    wokeBase = new UserHUD(25, 70, "rgb(161, 173, 189)", 250)
+    wokeBar = new UserHUD(25, 70, "rgb(240, 119, 230)", startingWoke)
+    projectBase = new UserHUD(525, 70, "rgb(161, 173, 189)", 250)
+    projectBar = new UserHUD(525, 70, "rgb(240, 119, 230)", 0)
     // drawHUD()
 }
 
@@ -578,14 +587,14 @@ document.addEventListener("keyup", (e) => {
 // TECHNICALLY PLAYABLE WITHOUT BUT
 // ================================
 //  - interface messages pop-up
-//  - tying beginning of game to start button click
+//  ✔ - tying beginning of game to start button click
 //
 // =======
 // STRETCH
 // =======
 // - user HUD messages on item pick-up
-// - make images
-// - load images instead of colored boxes
+// ✔ - make images
+// ✔ xc- load images instead of colored boxes
 // - add sound effects
 // - tweaking of speeds, drop frequency, etc.
 //

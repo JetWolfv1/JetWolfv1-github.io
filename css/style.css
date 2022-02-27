@@ -55,6 +55,18 @@ h1 {
     margin-bottom: 25px;
 }
 
+#woke-bar {
+    width: 227px;
+    height: 86px;
+    margin-bottom: 25px;
+}
+
+#proj-bar {
+    width: 167px;
+    height: 77px;
+    margin-bottom: 25px;
+}
+
 #how-to-play1 {
     background-image: url("../images/screengameplay.png");
     display: flex;
