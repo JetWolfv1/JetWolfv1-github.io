@@ -94,7 +94,7 @@ const mug = new PlayerMug("basicMug", "hotpink", 75, 75)
 // to capture.
 class WokeItem {
     constructor(wokeName, wokeColor, wokeWidth, wokeHeight, wokeDropRate, wokeValue, x) {
-        this.id = randomNum(1000, 4000)
+        // this.id = randomNum(1, 2000)
         this.x = x,
         this.y = 0,
         this.name = wokeName,
@@ -193,40 +193,59 @@ const wokeItems = []
 // class, I can't get them to be referenced elsewhere.
 
 const wokeStuff = {
-    // Generates the caffeinated items to be dropped for the player to
-    // collect. Parameters are: name, color, width, height, drop rate,
-    // amount of wokeness it'll add, and its randomly generated position
-    // on the x-axis
+    // Generates the caffeinated and sleepy items to be dropped for the
+    // player to collect. Parameters are: name, color, width, height, drop
+    // rate, amount of wokeness it'll add, and its randomly generated
+    // position on the x-axis
     makeWoke() {
         let refill = new WokeItem("refill", "rgb(92, 47, 17)", 28, 37, 30, 10, randomNum(0, canvas.width))
-        let energyDrink = new WokeItem("energyDrink", "silver", 25, 75, 40, 30, randomNum(0, canvas.width))
+        let energyDrink = new WokeItem("energyDrink", "blue", 25, 75, 40, 30, randomNum(0, canvas.width))
         let molecule = new WokeItem("molecule", "teal", 100, 75, 20, 100, randomNum(0, canvas.width))
+        let sheep = new WokeItem("sheep", "white", 100, 100, 20, -10, randomNum(0, canvas.width))
+        let lullaby = new WokeItem("lullaby", "goldenrod", 25, 25, 30, -20, randomNum(0, canvas.width))
+        let pillow = new WokeItem("pillow", "rgb(145, 62, 161)", 75, 50, 40, -40, randomNum(0, canvas.width))
         
         // Random number generator to determine which woke item will be
         // made next and pushed into the wokeItems array. Refills are more
         // likely than energy drinks which are more likely than molecules.
-        let random = randomNum(1, 6)
+        let randomWoke = randomNum(1, 6)
         // Tests to see if the random start position will put the item
         // outside the game board, and if so, reset it so it will be along
         // the edge.
-        if (random <= 3) {
+        if (randomWoke <= 3) {
             if (refill.x > canvas.width - refill.width)
                 {refill.x = canvas.width - refill.width}
             wokeItems.push(refill)
-            // console.log("refill: ", refill)
-            // console.log("made refill")
-        } else if (random === 4 || random === 5) {
+            console.log("made refill: ", refill)
+        } else if (randomWoke === 4 || randomWoke === 5) {
             if (energyDrink.x > canvas.width - energyDrink.width)
                 {energyDrink.x = canvas.width - energyDrink.width}
             wokeItems.push(energyDrink)
-            // console.log("nrg: ", energyDrink)
-            // console.log("made nrg")
-        } else if (random === 6) {
+            console.log("made energy: ", energyDrink)
+        } else if (randomWoke === 6) {
             if (molecule.x > canvas.width - molecule.width)
                 {molecule.x = canvas.width - molecule.width}
             wokeItems.push(molecule)
-            // console.log("molecule: ", molecule)
-            // console.log("made molecule")
+            console.log("made molecule: ", molecule)
+        }
+
+        // Same as above, for sleepy items
+        let randomSleep = randomNum(1, 6)
+        if (randomSleep <= 2) {
+            if (sheep.x > canvas.width - sheep.width)
+                {sheep.x = canvas.width - sheep.width}
+            wokeItems.push(sheep)
+            console.log("made sheep: ", sheep)
+        } else if (randomSleep === 3 || randomSleep === 4) {
+            if (lullaby.x > canvas.width - lullaby.width)
+                {lullaby.x = canvas.width - lullaby.width}
+            wokeItems.push(lullaby)
+            console.log("made lullaby: ", lullaby)
+        } else if (randomSleep >= 5) {
+            if (pillow.x > canvas.width - pillow.width)
+                {pillow.x = canvas.width - pillow.width}
+            wokeItems.push(pillow)
+            console.log("made pillow: ", pillow)
         }
     },
 
@@ -237,13 +256,12 @@ const wokeStuff = {
             wokeItems[i].y += wokeItems[i].rate
         }
     },
+
     // Collision detection for each of the items on the gameboard.
     detectHit() {
         // Loops through the woke items and uses their dimensions and
         // position to check against the mug's dimensions and position.
         // If they overlap, a hit is detected.
-        // **** Flip this? Checking many items against the mug, when the
-        // mug is one item.
         for (let i = 0; i < wokeItems.length; i++) {
                 let mugLeft = wokeItems[i].x + wokeItems[i].width >= mug.x
                 let mugRight = wokeItems[i].x <= mug.x + mug.width
@@ -257,7 +275,7 @@ const wokeStuff = {
                     mug.y + mug.height > wokeItems[i].y
                     ) {
                         wokeItems[i].alive = false
-                        console.log(`collected ${wokeItems[i].name}\nworth ${wokeItems[i].value}`)
+                        // console.log(`collected ${wokeItems[i].name}\nworth ${wokeItems[i].value}`)
                         wokeUpdate = wokeUpdate + wokeItems[i].value
                         // console.log("wokeupdate on collection:", wokeUpdate)
                     }
@@ -278,12 +296,18 @@ const startGame = () => {
 // Function to update the UserHUD bars based on items collectded this loop.
 const barUpdate = () => {
     let adjustedWoke = wokeBar.width + wokeUpdate
+    // Check to see if the player has fallen asleep, and if so, the game
+    // is over.
+    if (adjustedWoke <= 0) {
+        gameOver = true
+    }
     // Condition to constrain the bar update to the maximum possible.
     if (adjustedWoke <= wokeBase.width) {
         wokeBar = new UserHUD(25, 38, "rgb(240, 119, 230)", adjustedWoke)
     } else {
         wokeBar = new UserHUD(25, 38, "rgb(240, 119, 230)", wokeBase.width)
     }
+    // Reset the amount of woke collected after update
     wokeUpdate = 0
 }
 
@@ -292,12 +316,11 @@ const barUpdate = () => {
 const clearDead = () => {
     for (let i = 0; i < wokeItems.length; i++) {
         if (wokeItems[i].alive === false) {
-            console.log(`deleting ${wokeItems[i].name}, alive=${wokeItems[i].alive}`)
+            // console.log(`deleting ${wokeItems[i].name}, alive=${wokeItems[i].alive}`)
             wokeItems.splice(i, 1)
         }
     }
 }
-
 
 // ***** Put in a check on the gameloop? One that checks timers/counters
 // and fires if they're ready, otherwise stuff goes too fast.
@@ -314,25 +337,35 @@ const gameLoop = () => {
     // loopCount++
     // console.log("Starting loop #", loopCount)
     // console.log("This is the start of the game loop");
-    console.log("woke update at loop start", wokeUpdate)
-    // Runs the check for removal of the "dead" items
-    clearDead()
-    // Clear the canvas
-    clearCanvas()
-    // Display the coordinates of the mug
-    drawHUD()
-    barUpdate()
-    moveDisplay.textContent = "Mug position: " + mug.x + ", " + mug.y
-    // makes new woke items and puts them into their array
-    wokeStuff.drawWoke()
-    //creates the player's mug
-    mug.render()
-    mug.moveMug()
-    wokeStuff.detectHit()
-    // console.log("can I get speed from in the gameloop?", wokeItems[0].rate)
-    // will need a timer or some sort of checker to control how often this fires
-    // checkTimers()
-}
+    // console.log("woke update at loop start", wokeUpdate)
+
+    // first check to see if the game is over
+    // ** Pass number to stopGame() to change display, etc?
+    if (gameOver === true) {
+        stopGame()
+    } else {
+
+        // Runs the check for removal of the "dead" items
+        clearDead()
+        // Clear the canvas
+        clearCanvas()
+        // Display the coordinates of the mug
+        drawHUD()
+        barUpdate()
+        // Updates the player with the mug's x,y position
+        // moveDisplay.textContent = "Mug position: " + mug.x + ", " + mug.y
+        // makes new woke items and puts them into their array
+        wokeStuff.drawWoke()
+        // Create the player's mug
+        // Placed after the collectibles so the mug will be the top layer
+        mug.render()
+        mug.moveMug()
+        wokeStuff.detectHit()
+        // console.log("can I get speed from in the gameloop?", wokeItems[0].rate)
+        // will need a timer or some sort of checker to control how often this fires
+        // checkTimers()
+    }
+} // gameLoop end bracket
 
 // Setting the timed items so we can stop them.
 const gameLoopInterval = setInterval(gameLoop, 60)
@@ -340,20 +373,21 @@ const makeWokeInterval = setInterval(wokeStuff.makeWoke, 1000)
 
 // Function to perform end of game checks and actions
 const stopGame = () => {
-    clearCanvas()
     clearInterval(gameLoopInterval)
     clearInterval(makeWokeInterval)
+    clearCanvas()
+    gameOverText.render()
     console.log("Game over!")
-    console.log("generated wokeitems left:", wokeItems)
+    // console.log("generated wokeitems left:", wokeItems)
 }
 
 // The event listeners that load with the page
 document.addEventListener("DOMContentLoaded", function () {    
     // setInterval(gameLoop, 60)
     // stops the game after a set amount of time, for testing
-    setTimeout(stopGame, 10000)
+    // setTimeout(stopGame, 10000)
     // listens for the start button to be clicked
-    startBtn.addEventListener("click", startGame)
+    startBtn.addEventListener("click", console.log("clicky!"))
 })
 
 // detects when a key is pressed
@@ -372,3 +406,22 @@ document.addEventListener('keyup', (e) => {
     }
 })
 
+
+
+// Logic to work out / Things to add
+//  ✔ - player UI ("health" bars, time remaining, etc.)
+//  - project bar moving toward completion
+//  - woke array of objects for collectibles
+//  ✔ - woke items falling
+//  ✔ - woke items affecting woke bar
+//  ✔ - woke items removed when leaving the gamefield (not just falling forever)
+//  - sleepy array of objects for collectibles
+//      - sleepy itmes falling
+//      - sleepy items affecting woke bar
+//      - sleepy items removed when leaving gamefield
+//  - (random?) time interval before collectible falls
+//  ✔ - random selection of next collectible to fall
+//  ✔ - random position of next collectible to fall
+//  - interface messages pop-up
+//  - tying beginning of canvas to start button click
+//
