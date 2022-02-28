@@ -46,7 +46,7 @@ const clearCanvas = () => {
 
 // Random number generator to be called for each of the conditions
 // with a random element (which collectible to generate next,
-// starting positions, etc.)  Random number can include both min
+// starting positions, etc.) Random number can include both min
 // and max entered.
 const randomNum = (min, max) => {
     min = Math.ceil(min)
@@ -203,7 +203,7 @@ let projUpdate = 0
 let startingWoke = 100
 // Variable to initialize the check to see if an identical item gets
 // picked to drop next
-let lastDrop = 5000
+// let lastDrop = 5000
 // Boolean to say if we want a new item to drop.
 let goodToDrop = false
 
@@ -254,7 +254,7 @@ const wokeStuff = {
         // Random number generator to determine which woke item will be
         // made next and pushed into the wokeItems array. Refills are more
         // likely than energy drinks which are more likely than molecules.
-        let randomWoke = randomNum(1, 6)
+        let randomWoke = randomNum(1, 6)    
         // Tests to see if the random start position will put the item
         // outside the game board, and if so, reset it so it will be along
         // the edge.
