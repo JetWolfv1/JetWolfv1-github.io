@@ -44,12 +44,25 @@ h1 {
     height: 144px;
     margin-bottom: 50px;
 }
-#replay-button-w {
-    width: 386px;
-    height: 103px;
-    margin-bottom: 25px;
+#howto-prev1, #howto-prev2, #howto-prev3  {
+    width: 212px;
+    height: 140px;
+    margin-bottom: 40px;
+    margin-left: 60px;
 }
-#replay-button-l {
+#howto-next1, #howto-next2 {
+    width: 232px;
+    height: 140px;
+    margin-bottom: 40px;
+    margin-right: 60px;
+}
+#howto-button {
+    width: 284px;
+    height: 144px;
+    margin-bottom: 50px;
+}
+
+#replay-button-w, #replay-button-l {
     width: 386px;
     height: 103px;
     margin-bottom: 25px;
@@ -68,17 +81,33 @@ h1 {
 }
 
 #how-to-play1 {
-    background-image: url("../images/screengameplay.png");
+    background-image: url("../images/screenhowto1.png");
     display: flex;
 	flex-direction: row;
-	justify-content: space-around;
+	justify-content: space-between;
+    align-items: flex-end;
+    width: 800px;
+    height: 0px;
 }
 
 #how-to-play2 {
-    background-image: url("../images/screengameplay.png");
+    background-image: url("../images/screenhowto2.png");
     display: flex;
 	flex-direction: row;
-	justify-content: space-around;
+	justify-content: space-between;
+    align-items: flex-end;
+    width: 800px;
+    height: 0px;
+}
+
+#how-to-play3 {
+    background-image: url("../images/screenhowto3.png");
+    display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+    align-items: flex-end;
+    width: 800px;
+    height: 0px;
 }
 
 #win-screen {

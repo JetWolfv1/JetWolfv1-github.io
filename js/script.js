@@ -12,13 +12,18 @@ canvas.setAttribute("height", getComputedStyle(canvas)["height"])
 const gameBoard = document.getElementById("game-board")
 const moveDisplay = document.getElementById("user-moves")
 const startBtn = document.getElementById("start-button")
+const startScreen = document.getElementById("start-screen")
 const howToBtn = document.getElementById("howto-button")
+const howTo1Screen = document.getElementById("how-to-play1")
+const prev1Btn = document.getElementById("howto-prev1")
+const next1Btn = document.getElementById("howto-next1")
+const howTo2Screen = document.getElementById("how-to-play2")
+const prev2Btn = document.getElementById("howto-prev2")
+const next2Btn = document.getElementById("howto-next2")
+const howTo3Screen = document.getElementById("how-to-play3")
+const prev3Btn = document.getElementById("howto-prev3")
 const replayBtnW = document.getElementById("replay-button-w")
 const replayBtnL = document.getElementById("replay-button-l")
-// const hudMsg = document.getElementById("hudmessage")
-const startScreen = document.getElementById("start-screen")
-const howTo1Screen = document.getElementById("how-to-play1")
-const howTo2Screen = document.getElementById("how-to-play2")
 const winScreen = document.getElementById("win-screen")
 const lossScreen = document.getElementById("loss-screen")
 
@@ -207,8 +212,6 @@ let goodToDrop = false
 let gameLoopInterval = null
 let makeWokeInterval = null
 
-let hudMsg = ""
-
 // Set up the user HUD with the caffeine and project progress bars.
 // "baseBar" will render underneath them to give the appearance of
 // partially empty bars.
@@ -219,13 +222,6 @@ let projectBar = new UserHUD(525, 70, "rgb(240, 119, 230)", 0)
 
 let wokeText = new TextHUD("Wokeness", imgWokeBar, 150, 50, 25, 15)
 let projectText = new TextHUD("Project", imgProjBar, 100, 50, 675, 15)
-// let wokeText = new TextHUD("Wokeness", "blue", 30, 30, "bold 20pt Calibri")
-// let projectText = new TextHUD("Project", "blue", 695, 30, "bold 20pt Calibri")
-// Adding in text to the user HUD
-// Format: (text, color, x-coord, y-coord, "style size face")
-// let timerText = new TextHUD(90, "blue", 375, 60, "bold 40pt Calibri")
-// let gameOverText = new TextHUD("Game Over", "red", 90, 325, "bold 100pt Calibri")
-// let winnerText = new TextHUD("You win!", "blue", 150, 325, "bold 100pt Calibri")
 
 const drawHUD = () => {
     wokeBase.render()
@@ -234,18 +230,12 @@ const drawHUD = () => {
     projectBar.render()
     wokeText.draw()
     projectText.draw()
-    // timerText.render()
-    // popupText.render()
 }
 
 // The array to hold all the randomly created woke items. makeWoke() will
 // add them, and they'll be removed when they're captured or fall off the
 // board.
 const wokeItems = []
-
-// when I move the items out of the wokestuff class, new instances aren't
-// created it's just what's already in the array. When I keep them in the
-// class, I can't get them to be referenced elsewhere.
 
 const wokeStuff = {
     // Generates the caffeinated and sleepy items to be dropped for the
@@ -360,7 +350,7 @@ const wokeStuff = {
 } // wokeStuff object close bracket
 
 // Popup message placed down here so it'll load on top of everything else.
-let popupText = new TextHUD(hudMsg, "white", 300, 150, "bold 25px Calibri")
+// let popupText = new TextHUD(hudMsg, "white", 300, 150, "bold 25px Calibri")
 
 // Function to update the woke bar based on items collectded this loop.
 const wokeBarUpdate = () => {
@@ -370,7 +360,7 @@ const wokeBarUpdate = () => {
     // is over.
     if (adjustedWoke <= 0) {
         gameOver = true
-        console.log("You fell asleep!")
+        // console.log("You fell asleep!")
     }
     // Condition to constrain the bar update to the maximum possible.
     if (adjustedWoke <= wokeBase.width) {
@@ -477,7 +467,6 @@ const restartGame = () => {
     wokeBar = new UserHUD(25, 70, "rgb(240, 119, 230)", startingWoke)
     projectBase = new UserHUD(525, 70, "rgb(161, 173, 189)", 250)
     projectBar = new UserHUD(525, 70, "rgb(240, 119, 230)", 0)
-    // drawHUD()
 }
 
 // Class for the setup stuff
@@ -504,6 +493,74 @@ const startStuff = {
             setTimeout(makeWokeInterval = setInterval(wokeStuff.makeWoke, 500), 10000)
             setInterval(() => {goodToDrop = true}, 500)
         }
+    },
+
+    showStartScreen() {
+        startBtn.classList.remove("hidden")
+        howToBtn.classList.remove("hidden")
+        startScreen.classList.remove("hidden")
+        startScreen.style.height = "600px"
+        howTo1Screen.classList.add("hidden")
+        howTo1Screen.style.height = "0px"
+        prev1Btn.classList.add("hidden")
+        next1Btn.classList.add("hidden")
+    },
+
+    showHowTo1() {
+        startBtn.classList.add("hidden")
+        howToBtn.classList.add("hidden")
+        startScreen.classList.add("hidden")
+        startScreen.style.height = "0px"
+        howTo2Screen.classList.add("hidden")
+        howTo2Screen.style.height = "0px"
+        prev2Btn.classList.add("hidden")
+        next2Btn.classList.add("hidden")
+        howTo1Screen.classList.remove("hidden")
+        howTo1Screen.style.height = "600px"
+        prev1Btn.classList.remove("hidden")
+        next1Btn.classList.remove("hidden")
+    },
+
+    showHowTo2() {
+        howTo1Screen.classList.add("hidden")
+        howTo1Screen.style.height = "0px"
+        prev1Btn.classList.add("hidden")
+        next1Btn.classList.add("hidden")
+        howTo3Screen.classList.add("hidden")
+        howTo3Screen.style.height = "0px"
+        prev3Btn.classList.add("hidden")
+        howTo2Screen.classList.remove("hidden")
+        howTo2Screen.style.height = "600px"
+        prev2Btn.classList.remove("hidden")
+        next2Btn.classList.remove("hidden")
+    },
+
+    showHowTo3() {
+        howTo2Screen.classList.add("hidden")
+        howTo2Screen.style.height = "0px"
+        prev2Btn.classList.add("hidden")
+        next2Btn.classList.add("hidden")
+        howTo3Screen.classList.remove("hidden")
+        howTo3Screen.style.height = "600px"
+        prev3Btn.classList.remove("hidden")
+    },
+
+    // Function to control the How To Play section
+    howTo1() {
+        startStuff.showHowTo1()
+        prev1Btn.addEventListener("click", startStuff.showStartScreen)
+        next1Btn.addEventListener("click", startStuff.howTo2)
+    },
+
+    howTo2() {
+        startStuff.showHowTo2()
+        prev2Btn.addEventListener("click", startStuff.howTo1)
+        next2Btn.addEventListener("click", startStuff.howTo3)
+    },
+
+    howTo3() {
+        startStuff.showHowTo3()
+        prev3Btn.addEventListener("click", startStuff.howTo2)
     },
 }
 
@@ -544,6 +601,8 @@ document.addEventListener("DOMContentLoaded", function () {
     // setTimeout(stopGame, 10000)
     // listens for the start button to be clicked
     startBtn.addEventListener("click", startStuff.startGame)
+    howToBtn.addEventListener("click", startStuff.howTo1)
+
 })
 
 // detects when a key is pressed
@@ -588,13 +647,14 @@ document.addEventListener("keyup", (e) => {
 // ================================
 //  - interface messages pop-up
 //  ✔ - tying beginning of game to start button click
+//  ✔ - Full how-to-play section with game premise and item images
 //
 // =======
 // STRETCH
 // =======
 // - user HUD messages on item pick-up
 // ✔ - make images
-// ✔ xc- load images instead of colored boxes
+// ✔ - load images instead of colored boxes
 // - add sound effects
 // - tweaking of speeds, drop frequency, etc.
 //
