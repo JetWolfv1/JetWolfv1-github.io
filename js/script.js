@@ -75,7 +75,6 @@ class PlayerMug {
     // For smoother animation, the mug will always be moving, it'll just
     // be confined until our keypresses allow it to go
 	setDirection = function (key) {
-		// console.log('the key pressed is', key)
 		// Pressing the assigned keys (keydown) changes the direction
         // from false to true, "freeing" the player mug to move in that
         // direction.
@@ -85,7 +84,6 @@ class PlayerMug {
     // We need an unset to put the locks back down on the mug when the key
     // is lifted (keyup). The direction will be set back to false.
 	unsetDirection = function (key) {
-		// console.log('the key pressed is', key)
 		if (key.toLowerCase() == 'a') this.direction.left = false
 		if (key.toLowerCase() == 'd') this.direction.right = false
 	}
@@ -108,10 +106,7 @@ class PlayerMug {
 			}
 		}
 	}
-    // Function to draw mug, to be replaced by an image (theoretically!)
-    // render = function() {
-    //     ctx.fillStyle = this.color
-    //     ctx.fillRect(this.x, this.y, this.width, this.height)
+    // Function to "draw" the player's mug into the game.
     draw() {
             ctx.drawImage(this.image, this.x, this.y, this.width, this.height)
         }
@@ -140,8 +135,7 @@ class WokeItem {
     }
     draw() {
         ctx.drawImage(this.image, this.x, this.y, this.width, this.height)
-        // ctx.fillStyle = this.color
-        // ctx.fillRect(this.x, this.y, this.width, this.height)
+
     }
 }
 
@@ -192,18 +186,11 @@ class TextHUD {
 let gameOver = false
 // Variable for if the player won
 let youWin = false
-// Starting value for the game level timer.
-// let timer = 90
-// Variable to iterate the gameLoop we're on, for internal checking
-// let gameLoopCount = 0
 // Variable to hold the adjusted values for the HUD bars
 let wokeUpdate = 0
 let projUpdate = 0
 // Variable to adjust the amount of wokeness the player starts with
 let startingWoke = 100
-// Variable to initialize the check to see if an identical item gets
-// picked to drop next
-// let lastDrop = 5000
 // Boolean to say if we want a new item to drop.
 let goodToDrop = false
 
@@ -243,7 +230,6 @@ const wokeStuff = {
     // rate, amount of wokeness it'll add, and its randomly generated
     // position on the x-axis
     makeWoke() {
-        // console.log(`wokeItems has ${wokeItems.length} items at top of makeWoke`)
         let refill = new WokeItem("refill", imgRefill, 75, 125, 30, 10, randomNum(0, canvas.width))
         let energyDrink = new WokeItem("energyDrink", imgEnergy, 50, 100, 40, 30, randomNum(0, canvas.width))
         let molecule = new WokeItem("molecule", imgMolecule, 125, 100, 20, 100, randomNum(0, canvas.width))
@@ -262,17 +248,14 @@ const wokeStuff = {
             if (refill.x > canvas.width - refill.width)
                 {refill.x = canvas.width - refill.width}
                 wokeItems.push(refill)
-                // console.log("made refill", refill)
         } else if (randomWoke === 4 || randomWoke === 5) {
             if (energyDrink.x > canvas.width - energyDrink.width)
                 {energyDrink.x = canvas.width - energyDrink.width}
                 wokeItems.push(energyDrink)
-                // console.log("made energy", energyDrink)
         } else if (randomWoke === 6) {
             if (molecule.x > canvas.width - molecule.width)
                 {molecule.x = canvas.width - molecule.width}
                 wokeItems.push(molecule)
-                // console.log("made molecule", molecule)
         }
 
         // Same as above, for sleepy items
@@ -281,27 +264,21 @@ const wokeStuff = {
             if (sheep.x > canvas.width - sheep.width)
                 {sheep.x = canvas.width - sheep.width}
                 wokeItems.push(sheep)
-                // console.log("made sheep", sheep)
         } else if (randomSleep === 3 || randomSleep === 4) {
             if (lullaby.x > canvas.width - lullaby.width)
                 {lullaby.x = canvas.width - lullaby.width}
                 wokeItems.push(lullaby)
-                // console.log("made lullaby", lullaby)
         } else if (randomSleep >= 5) {
             if (pillow.x > canvas.width - pillow.width)
                 {pillow.x = canvas.width - pillow.width}
                 wokeItems.push(pillow)
-                // console.log("made pillow", pillow)
         }
-        // console.log("what's in the item array:", wokeItems)
     },
 
     // Renders the items from the array to the gameboard.
     drawWoke() {
+        // Check to see if we're ready for another item to hit the board.
         if (goodToDrop === true) {
-        //     console.log("goodtodrop is false")
-        // } else {
-        //     console.log("goodtodrop is true")
             // Randomzing the item dropped
             let i = randomNum(1, (wokeItems.length - 1))
             // Keeps the dropped items from repeating
@@ -309,7 +286,8 @@ const wokeStuff = {
             // Reset the lock on dropping another item
             goodToDrop = false
         }
-
+        // Runs through the array, and draws to the gameboard all the items
+        // that have been flagged as dropped.
         for (let i = 0; i < wokeItems.length; i++) {
             if (wokeItems[i].dropped === true) {
                 wokeItems[i].draw()
@@ -335,10 +313,10 @@ const wokeStuff = {
                     mug.y < wokeItems[i].y + wokeItems[i].height &&
                     mug.y + mug.height > wokeItems[i].y
                     ) {
+                        // "Kills" the item the mug collided with and
+                        // adjusts the wokebar according to its set value.
                         wokeItems[i].alive = false
-                        // console.log(`collected ${wokeItems[i].name}\nworth ${wokeItems[i].value}`)
                         wokeUpdate = wokeUpdate + wokeItems[i].value
-                        // console.log("wokeupdate on collection:", wokeUpdate)
                     }
                 // Sets the item to be cleared in the next loop once it
                 // has fallen outside the gameboard
@@ -349,39 +327,40 @@ const wokeStuff = {
             },
 } // wokeStuff object close bracket
 
-// Popup message placed down here so it'll load on top of everything else.
-// let popupText = new TextHUD(hudMsg, "white", 300, 150, "bold 25px Calibri")
-
 // Function to update the woke bar based on items collectded this loop.
 const wokeBarUpdate = () => {
+    // The wokebar is continually draining
     wokeUpdate--
+    // Updates the player's wokebar with the amount of woke obtained
+    // (positive or negative) since the last tick
     let adjustedWoke = wokeBar.width + wokeUpdate
-    // Check to see if the player has fallen asleep, and if so, the game
-    // is over.
+    // Check to see if the player has fallen asleep (updated wokeness is
+    // zero or less), and if so, the game is over.
     if (adjustedWoke <= 0) {
         gameOver = true
-        // console.log("You fell asleep!")
     }
-    // Condition to constrain the bar update to the maximum possible.
+    // Condition to constrain the bar update to the maximum possible so it
+    // won't continue to grow outside of its confines.
     if (adjustedWoke <= wokeBase.width) {
         wokeBar = new UserHUD(25, 70, "rgb(240, 119, 230)", adjustedWoke)
     } else {
         wokeBar = new UserHUD(25, 70, "rgb(240, 119, 230)", wokeBase.width)
     }
-    // Reset the amount of woke collected after update
+    // Reset the amount of woke collected after update for accumulation in
+    // the next tick.
     wokeUpdate = 0
 }
 
 // Function to adjust the project bar and trigger when the player wins
 const projBarUpdate = () => {
+    // Project bar is continually increasing.
     projUpdate++
     let adjustedProj = projectBar.width + projUpdate
-    // Check to see if the player has fallen asleep, and if so, tdhe game
-    // is over.
+    // Check to see if the project is complete, and if so, flag the player
+    // as having won and end the game.
     if (adjustedProj === projectBase.width) {
         gameOver = true
         youWin = true
-        console.log("Project complete, you win!")
     }
     // Condition to constrain the bar update to the maximum possible.
     if (adjustedProj <= projectBase.width) {
@@ -398,36 +377,24 @@ const projBarUpdate = () => {
 const clearDead = () => {
     for (let i = 0; i < wokeItems.length; i++) {
         if (wokeItems[i].alive === false) {
-            // console.log(`deleting ${wokeItems[i].name}, alive=${wokeItems[i].alive}`)
             wokeItems.splice(i, 1)
         }
     }
 }
 
-// ***** Put in a check on the gameloop? One that checks timers/counters
-// and fires if they're ready, otherwise stuff goes too fast.
 
-
-// The main gameloop, runs every gameLoopInterval and drives primary
-// actions of the game
+// The main gameloop, runs every gameLoopInterval and puts all the pieces
+// together to drive the primary action of the game.
 const gameLoop = () => {
-    // Up the loop counter at the start of the gameloop and display which
-    // one we're on (for internal use)
-    // gameLoopCount++
-    // console.log("Starting loop #", gameLoopCount)
-    // console.log("This is the start of the game loop");
-    // console.log("woke update at loop start", wokeUpdate)
-    // console.log(`At the start of gameloop the are ${wokeItems.length} woke items.`)
-
-    // Before anything runs, check to see if the game is over.
+    // Before anything runs, check to see if the game is over and, if so,
+    // stop everything and run end of game items.
     if (gameOver === true) {
         stopGame()
     } else {
-        // These are the things that will happen every tick.
-        //
+        // These are the things that will happen every tick:
         // Runs the check for removal of the "dead" items
         clearDead()
-        // Clear the canvas
+        // Clear the canvas and redraw it (creates movement)
         clearCanvas()
         drawHUD()
         // Update the player HUD bars
@@ -435,10 +402,14 @@ const gameLoop = () => {
         projBarUpdate()
         // Draws the falling items on the gameboard
         wokeStuff.drawWoke()
-        // Create the player's mug. Placed after the collectibles so the
-        // mug will be the top layer
+        // Render the player's mug at its new position.
+        // ** NOTE: Placed after the collectibles so the mug will be the
+        // top layer and items will fall behind it and so appear to fall
+        // inside.
         mug.draw()
+        // Execute player's movement
         mug.moveMug()
+        // Detect any item collisions
         wokeStuff.detectHit()
     }
 } // gameLoop end bracket
@@ -449,6 +420,7 @@ const gameLoop = () => {
 const restartGame = () => {
     gameOver = false
     youWin = false
+    // Purges all the items remaining in the array from the last game.
     wokeItems.length = 0
     wokeUpdate = 0
     projUpdate = 0
@@ -456,13 +428,18 @@ const restartGame = () => {
     goodToDrop = false
     gameLoopInterval = null
     makeWokeInterval = null
+    // Hides all potentially visible DOM items from where a restart could
+    // have been triggered.
     winScreen.classList.add("hidden")
     winScreen.style.height = "0px"
     lossScreen.classList.add("hidden")
     lossScreen.style.height = "0px"
     replayBtnW.classList.add("hidden")
     replayBtnL.classList.add("hidden")
+    // Between-game maintanance done, run the game starting events as if
+    // "Start Game" had been clicked.
     startStuff.startGame()
+    // Redraw the player HUD (** definitely not dry here.)
     wokeBase = new UserHUD(25, 70, "rgb(161, 173, 189)", 250)
     wokeBar = new UserHUD(25, 70, "rgb(240, 119, 230)", startingWoke)
     projectBase = new UserHUD(525, 70, "rgb(161, 173, 189)", 250)
@@ -471,7 +448,7 @@ const restartGame = () => {
 
 // Class for the setup stuff
 const startStuff = {
-    // function to do all the rendering, resetting, etc. for starting the game
+    // function to do all the setup for starting a completely fresh game.
     startGame() {
         // Remove the start screen and buttons and prep the gameboard
         startBtn.classList.add("hidden")
@@ -483,18 +460,24 @@ const startStuff = {
         gameBoard.classList.remove("hidden")
 
         // Front-loading items into the array for smooth drops and variety
-        // Run makeWoke $count number of times
+        // Pre-run makeWoke $count number of times
         for (let count = 0; count < 10; count++) {
             wokeStuff.makeWoke()
-            // console.log(wokeItems.length, "items made before game starts")
         }
+        // Checks to see if one of the gameplay intervals has been set,
+        // and if not, sets all of them.
         if (!gameLoopInterval) {
+            // Waits one second, then sets the gameLoop going every 60 milliseconds (~60 fps) for the duration of the game.
             setTimeout(gameLoopInterval = setInterval(gameLoop, 60), 1000)
+            // Waits ten seconds then begins making new items to drop.
             setTimeout(makeWokeInterval = setInterval(wokeStuff.makeWoke, 500), 10000)
+            // Releases the "lock" and allows a new random item to drop every half second, beginning immediately on game start.
             setInterval(() => {goodToDrop = true}, 500)
         }
     },
 
+    // Shows the elements that make up the start screen and hides what
+    // could be visible before getting to this screen.
     showStartScreen() {
         startBtn.classList.remove("hidden")
         howToBtn.classList.remove("hidden")
@@ -506,6 +489,7 @@ const startStuff = {
         next1Btn.classList.add("hidden")
     },
 
+    // Same as above, for the first How-To-Play screen.
     showHowTo1() {
         startBtn.classList.add("hidden")
         howToBtn.classList.add("hidden")
@@ -521,6 +505,7 @@ const startStuff = {
         next1Btn.classList.remove("hidden")
     },
 
+    // Same as above, for the second How-To-Play screen.
     showHowTo2() {
         howTo1Screen.classList.add("hidden")
         howTo1Screen.style.height = "0px"
@@ -535,6 +520,7 @@ const startStuff = {
         next2Btn.classList.remove("hidden")
     },
 
+    // Same as above, for the third How-To-Play screen.
     showHowTo3() {
         howTo2Screen.classList.add("hidden")
         howTo2Screen.style.height = "0px"
@@ -545,7 +531,8 @@ const startStuff = {
         prev3Btn.classList.remove("hidden")
     },
 
-    // Function to control the How To Play section
+    // Functions to control the How To Play section: what to show/hide,
+    // and the buttons that control where you can navigate next.
     howTo1() {
         startStuff.showHowTo1()
         prev1Btn.addEventListener("click", startStuff.showStartScreen)
@@ -578,7 +565,6 @@ const stopGame = () => {
         winScreen.style.height = "600px"
         replayBtnW.classList.remove("hidden")
         replayBtnW.addEventListener("click", restartGame)
-        // winnerText.render()
     } else {
         canvas.classList.add("hidden")
         canvas.style.height = "0px"
@@ -587,40 +573,29 @@ const stopGame = () => {
         lossScreen.style.height = "600px"
         replayBtnL.classList.remove("hidden")
         replayBtnL.addEventListener("click", restartGame)
-        // gameOverText.render()
     }
-    console.log("Game over!")
-    // console.log("wokeitems left at game end:", wokeItems.length)
 }
 
-// The event listeners that load with the page
+// The event listeners that load with the page. We come up on the intro
+// screen at laod, with the only choices being to click to start or enter
+// the how-to section.
 document.addEventListener("DOMContentLoaded", function () {
-
-    // setInterval(gameLoop, 60)
-    // stops the game after a set amount of time, for testing
-    // setTimeout(stopGame, 10000)
-    // listens for the start button to be clicked
     startBtn.addEventListener("click", startStuff.startGame)
     howToBtn.addEventListener("click", startStuff.howTo1)
-
 })
 
-// detects when a key is pressed
+// Part of the movement functionality, detecting when a key is pressed and
+// changing the direction according to the setDirection PlayerMug method.
 document.addEventListener("keydown", (e) => {
-    // when the key is pressed, change the direction
-    // according to the setDirection HeroCrawler method
     mug.setDirection(e.key)
 })
 
-// detects when a key is released
+// Same as above, for when a key is released.
 document.addEventListener("keyup", (e) => {
-    // now if any of the keys that are released correspond to a movement key
-    // change the corresponding direction to false
     if (["a", "d"].includes(e.key)) {
         mug.unsetDirection(e.key)
     }
 })
-
 
 
 //
